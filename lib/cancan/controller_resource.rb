@@ -24,6 +24,10 @@ module CanCan
     def load_and_authorize_resource
       load_resource
       authorize_resource
+      if update_actions.include?(@params[:action].to_sym)
+        update_resource
+        authorize_resource # Reauthorize the now-updated resource
+      end
     end
 
     def load_resource
@@ -84,6 +88,10 @@ module CanCan
     def build_resource
       resource = resource_base.new(resource_params || {})
       assign_attributes(resource)
+    end
+
+    def update_resource
+      resource.assign_attributes(resource_params || {})
     end
 
     def assign_attributes(resource)
@@ -250,6 +258,10 @@ module CanCan
 
     def new_actions
       [:new, :create] + [@options[:new]].flatten
+    end
+
+    def update_actions
+      [:update] #TODO: check what @options is for
     end
 
     private
